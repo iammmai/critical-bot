@@ -1,0 +1,18 @@
+{
+  "name": "critical-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^15.0.3",
+    "dotenv": "^9.0.2",
+    "telegraf": "^4.3.0",
+    "typescript": "^4.2.4"
+  }
+}
