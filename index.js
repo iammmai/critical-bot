@@ -7,24 +7,25 @@ const db = require("./database");
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const sendQuiz = ({ ctx, question, chatId }) => {
-  if (chatId) {
-    return bot.telegram.sendQuiz(chatId, question.title, question.options, {
-      allows_multiple_answers: true,
-      correct_option_id: question.correct_options_idx[0],
-      explanation: question.explanationTextFalse,
-    });
-  }
-  return ctx.replyWithQuiz(question.title, question.options, {
+  const extra = {
     allows_multiple_answers: true,
     correct_option_id: question.correct_options_idx[0],
     explanation: question.explanationTextFalse,
-  });
+  };
+  if (chatId) {
+    return bot.telegram.sendQuiz(
+      chatId,
+      question.title,
+      question.options,
+      extra
+    );
+  }
+  return ctx.replyWithQuiz(question.title, question.options, extra);
 };
 
 bot.command("quit", (ctx) => {
-  // Using context shortcut
-  ctx.leaveChat();
-  //TODO: remove chat from active chat collection
+  db.removeChat(ctx.chat.id);
+  ctx.reply("Sad to see you go!😢");
 });
 
 bot.start((ctx) =>
@@ -55,7 +56,7 @@ db.run()
     bot.launch();
     // schedule cron job to send out questions everyday at 9
     //TODO: maybe the job should be scheduled based on the users timezone
-    cron.schedule("*/5 * * * * *", async () => {
+    cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
       const [question, _] = await db.getRandomQuestion();
       await chats.forEach((chat) => {

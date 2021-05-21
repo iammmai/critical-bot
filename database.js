@@ -23,10 +23,11 @@ module.exports = {
     const result = await client
       .db("criticalBot")
       .collection("chats")
-      .update({ chatId: newChat.chatId }, newChat, { upsert: true });
-    console.log(`New chat joined with id ${result._id}`);
+      .updateOne({ chatId: newChat.chatId }, newChat, { upsert: true });
   },
   getAllChats: () => client.db("criticalBot").collection("chats").find({}),
+  removeChat: (chatId) =>
+    client.db("criticalBot").collection("chats").deleteOne({ chatId }),
   getRandomQuestion: async () => {
     return await client
       .db("criticalBot")
