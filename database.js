@@ -7,7 +7,7 @@ const client = new MongoClient(process.env.MONGO_URL, {
 });
 
 module.exports = {
-  run: async () => {
+  connect: async () => {
     try {
       // Connect the client to the server
       await client.connect();
@@ -19,12 +19,15 @@ module.exports = {
     }
   },
   // TODO: maybe this needs to be an upsert
-  createChat: async (newChat) => {
-    const result = await client
+  createChat: (newChat) =>
+    client
       .db("criticalBot")
       .collection("chats")
-      .updateOne({ chatId: newChat.chatId }, newChat, { upsert: true });
-  },
+      .updateOne(
+        { chatId: newChat.chatId },
+        { $set: newChat },
+        { upsert: true }
+      ),
   getAllChats: () => client.db("criticalBot").collection("chats").find({}),
   removeChat: (chatId) =>
     client.db("criticalBot").collection("chats").deleteOne({ chatId }),

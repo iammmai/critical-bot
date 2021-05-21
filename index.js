@@ -1,6 +1,5 @@
 const { Telegraf } = require("telegraf");
 const dotenv = require("dotenv").config();
-const mockQuestion = require("./questions.json");
 const cron = require("node-cron");
 const db = require("./database");
 
@@ -22,6 +21,12 @@ const sendQuiz = ({ ctx, question, chatId }) => {
   }
   return ctx.replyWithQuiz(question.title, question.options, extra);
 };
+
+bot.help((ctx) => {
+  ctx.reply(
+    "/start to launch the bot\n/ask to receive a question\n/quit to stop the bot from sending questions"
+  );
+});
 
 bot.command("quit", (ctx) => {
   db.removeChat(ctx.chat.id);
@@ -50,7 +55,7 @@ bot.command("ask", async (ctx) => {
 });
 
 // connect to DB
-db.run()
+db.connect()
   .catch((err) => console.log(err))
   .then(async () => {
     bot.launch();
