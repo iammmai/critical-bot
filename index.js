@@ -1,40 +1,45 @@
 const { Telegraf } = require("telegraf");
+const { createWatchCompilerHost } = require("typescript");
 const dotenv = require("dotenv").config();
+const question = require("./questions.json");
+const cron = require("node-cron");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.command("quit", (ctx) => {
-  // Explicit usage
-  ctx.telegram.leaveChat(ctx.message.chat.id);
+cron.schedule("0 9 * * *", () => {
+  // TODO: fetch all users from database and send them questions
+});
 
+bot.command("quit", (ctx) => {
   // Using context shortcut
   ctx.leaveChat();
 });
 
-bot.on("text", (ctx) => {
-  // Explicit usage
-  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
+bot.start((ctx) =>
+  ctx
+    .reply("Hi there! I am the critical bot. Type /ask to receive a question.")
+    .then((msg) => {
+      // TODO: add chatId to a database so we can send them questions everuday
+    })
+);
 
-  // Using context shortcut
-  ctx.reply(`Hello ${ctx.state.role}`);
+bot.command("ask", (ctx) => {
+  // TODO: pick a question
+  ctx.replyWithQuiz(question.title, question.options, {
+    allows_multiple_answers: true,
+    correct_option_id: question.correct_options_idx[0],
+    explanation: question.explanationTextFalse,
+  });
 });
 
-bot.on("callback_query", (ctx) => {
-  // Explicit usage
-  ctx.telegram.answerCbQuery(ctx.callbackQuery.id);
+// bot.on("inline_query", (ctx) => {
+//   const result = [];
+//   // Explicit usage
+//   ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
 
-  // Using context shortcut
-  ctx.answerCbQuery();
-});
-
-bot.on("inline_query", (ctx) => {
-  const result = [];
-  // Explicit usage
-  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
-
-  // Using context shortcut
-  ctx.answerInlineQuery(result);
-});
+//   // Using context shortcut
+//   ctx.answerInlineQuery(result);
+// });
 
 bot.launch();
 
