@@ -1,8 +1,8 @@
 const { Telegraf } = require("telegraf");
-const { createWatchCompilerHost } = require("typescript");
 const dotenv = require("dotenv").config();
 const question = require("./questions.json");
 const cron = require("node-cron");
+const { createChat } = require("./database");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -19,7 +19,8 @@ bot.start((ctx) =>
   ctx
     .reply("Hi there! I am the critical bot. Type /ask to receive a question.")
     .then((msg) => {
-      // TODO: add chatId to a database so we can send them questions everuday
+      // saves chatId to databse so we can send them a question everyday
+      createChat({ chatId: msg.chat.id, userName: msg.chat.username });
     })
 );
 
