@@ -18,13 +18,15 @@ module.exports = {
       console.error("Error connecting to MongoDB");
     }
   },
+  // TODO: maybe this needs to be an upsert
   createChat: async (newChat) => {
     const result = await client
       .db("criticalBot")
       .collection("chats")
-      .insertOne(newChat);
+      .update({ chatId: newChat.chatId }, newChat, { upsert: true });
     console.log(`New chat joined with id ${result._id}`);
   },
+  getAllChats: () => client.db("criticalBot").collection("chats").find({}),
   getRandomQuestion: async () => {
     return await client
       .db("criticalBot")
