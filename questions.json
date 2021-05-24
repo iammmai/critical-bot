@@ -1,13 +1,45 @@
-[{
-  "title": "By how much has sea level risen since 1880?",
-  "options": ["10cm", "22cm", "42cm"],
-  "correct_options_idx": "1",
-  "explanationText": "Some important land masses are about to go underwater because of the melting of ice caps. If we don't drastically change our ways, islands like Manhattan, or many of the world's favorite touristic islands, will disappear before our eyes.",
+[
+{
+  "title": "What fabric uses the least amount of water in its production?",
+  "options": ["Cotton","100% organic cotton","Polyester", "Recycled PET polyester"],
+  "correct_options_idx": "3",
+  "explanationText": "That’s right! Recycled PET polyester has the smallest water footprint of them all [1]. However, there are other factors you can consider when building your wardrobe:\n-What’s the durability of this garment?\n-Can the fabric be recycled?\n-Is the fabric biodegradable?\n-What about who made the garment?\n-Did the garment travel a long way to get to me?\nAside from the fabric… Do we actually need the amount of clothes we consume?\n\n[1] - https://www.theconsciouschallenge.org/ecologicalfootprintbibleoverview/water-clothing\n"
 },
 {
-  "title": "By how much has sea level risen since 1880?",
-  "options": ["10cm", "22cm", "42cm"],
-  "correct_options_idx": "1",
-  "explanationText": "Some important land masses are about to go underwater because of the melting of ice caps. If we don't drastically change our ways, islands like Manhattan, or many of the world's favorite touristic islands, will disappear before our eyes.",
-}]
+  "title": "The wealthiest 10% of the world's population consume ___ times more energy than the poorest 10%?",
+  "options": ["20 times more energy","3 time more energy","4 times more energy","10 time more energy"],
+  "correct_options_idx": "0",
+  "explanationText": "Exactly, 20 times [1]! Using European Union and World Bank data, researchers compared the distribution of energy footprints, as well as what energy-intensive goods and services different income groups tend to spend their money on among 86 countries. \"The poorest 20% of the UK’s population still consumes more than five times as much energy per person as the bottom 84% in India, a group numbering roughly one billion people.\" [2]\n\n[1] - https://www.bbc.com/news/business-51906530\n[2] - https://environment.leeds.ac.uk/faculty/news/article/5311/shining-a-light-on-international-energy-inequality\n"
+},
+  {
+    "title": "According to estimations made by the UN based on the Food Waste Index Report, how much of the food available to consumers worldwide went into trash bins in the year of 2019?",
+    "options": ["5%","17%","12%","23"],
+    "correct_options_idx": "1",
+    "explanationText": "The weight roughly equals that of 23 million fully loaded 40-tonne trucks — bumper-to-bumper, enough to circle the Earth 7 times.\" This amount is relative to food that went to the trash at households and restaurants. [1] Do you end up throwing away food sometimes? Do you know the reasons for that? One interesting and unexpected finding of the Food Waste Index Report is that food waste appears to be a global, not just a developed world, problem.\n\n[1] - https://www.unep.org/news-and-stories/press-release/un-17-all-food-available-consumer-levels-wasted\n"
+  },
+  {
+    "title": "How much is the global mean sea level likely to rise by the end of this century, even if greenhouse gas emissions follow a relatively low pathway in coming decades?",
+    "options": ["30 cm","10 cm","20 cm","50 cm"],
+    "correct_options_idx": "0",
+    "explanationText": "It may sound like it’s not a lot, but imagine your apartment flooded with a layer of 30 cm of water… The main causes for this rise are due to global warming: first, glaciers and ice sheets worldwide are melting and adding water to the ocean. Second, the volume of the ocean is expanding as the water warms. [1] Trying to solve this issue on an individual level is overwhelming. Our best chance is to confront this issue collectively. What concrete steps is your government taking to mitigate global warming?\n\n[1] - https://www.climate.gov/news-features/understanding-climate/climate-change-global-sea-level\n"
+  },
+  {
+    "title": "Climate change and ecological destruction disproportionately impacts vulnerable people – the poor, disempowered and marginalised including people of colour. [1] By what percentage are Black British Africans more likely to be exposed to air pollution than their White British counterparts?",
+    "options": ["4%", "12","24%","18%"],
+    "correct_options_idx": "2",
+    "explanationText": "Yeah, that’s the truth: even when it comes to environmental vulnerability, we’re not all in the same boat [2]. Thinking of your neighbourhood or the place of work, do you notice this kind of uneven experience of the space? Is the air quality in all parts of your city the same?\n\nThis topic is related to a great deal of other subjects, like housing policies, taxation of transportation, distribution of health resources etc. Do you know ways of influencing decisions in these areas in your city?\n\n[1] - https://www.theguardian.com/environment/2016/oct/10/londons-black-communities-disproportionately-exposed-to-air-pollution-study \n[2 ] - https://www.london.gov.uk/sites/default/files/les_exposure_rpt_final2-rb.pdf\n"
+  },
+  {
+    "title": "Which of these items can you not recycle in a manner that is economically feasible or environmentally effective?",
+    "options": ["Glass Jar", "Battery", "Paper Bag", "Polystyrene cup"],
+    "correct_options_idx": "3",
+    "explanationText": "Yep, the coffee-to-go cup! Polystyrene’s porosity and high contamination when in touch with food are the reasons it is so hard to recycle this material [1]. But there are other important factors to decide which cup to pick: paper production is very water intensive and reusable mugs often combine materials that won’t be recycled for being mixed. The question is: do you really need a coffee-to-go?\n\n[1] - https://daily.jstor.org/is-the-30-year-long-styrofoam-war-nearing-its-end/"
+  },
+  {
+    "title": "According to the Migration Data Portal, “disasters displaced 9.8 million people and remained the leading trigger of new internal displacements globally” in 2020. How many people are expected to be displaced due to climate stresses by 2050?",
+    "options": ["1 billion", "50 million", "200 million", "500 million"],
+    "correct_options_idx": "2",
+    "explanationText": "Some of the main reasons for climate migration are food insecurity, water stress and natural disasters. Because of globalization, all countries have a part regarding these factors [1] [2]. Are you familiar with the policies of import and export of your country? Do you know what decisions your government has taken recently that could impact these factors?\n\n[1] - https://www.unhcr.org/news/latest/2020/11/5fbf73384/climate-change-defining-crisis-time-particularly-impacts-displaced.html\n[2] - https://migrationdataportal.org/themes/environmental_migration#data-sources"
+  }
+]
 

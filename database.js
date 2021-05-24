@@ -54,4 +54,11 @@ module.exports = {
     client.db("criticalBot").collection("polls").findOne({
       pollId,
     }),
+  getRandomOpenQuestion: async () => {
+    return await client
+      .db("criticalBot")
+      .collection("openQuestion")
+      .aggregate([{ $sample: { size: 1 } }])
+      .toArray();
+  },
 };

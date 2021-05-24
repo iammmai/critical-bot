@@ -37,14 +37,19 @@ bot.help((ctx) => {
     "/start to launch the bot\n" +
       "/ask to receive a mc question\n" +
       "/quit to stop the bot from sending questions\n" +
-      "/feedback to send us feedback"
-    //todo open questions
+      "/feedback to send us feedback\n" +
+      "/question to get an open question"
   );
 });
 
 bot.command("feedback", (ctx) => {
   db.saveFeedback(ctx);
   ctx.reply("Thanks for your feedback!🎉");
+});
+
+bot.command("question", async (ctx) => {
+  let questionObj = await db.getRandomOpenQuestion();
+  ctx.reply(questionObj[0].title);
 });
 
 bot.command("quit", (ctx) => {
@@ -55,7 +60,7 @@ bot.command("quit", (ctx) => {
 bot.start((ctx) =>
   ctx
     .reply(
-      "Hi there! I am the critical bot. I will test your knowledge everyday. You can also type /ask to receive a question."
+      "Hi there! I am the critical bot. I will test your knowledge everyday. You can also type /ask to receive a question and /help for further information!"
     )
     .then((msg) => {
       // saves chatId to databse
