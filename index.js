@@ -10,7 +10,7 @@ bot.telegram.setWebhook(`${process.env.URL}/secret`);
 const app = express();
 
 app.use(bot.webhookCallback(`/secret`));
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port 3000!`);
 });
 
