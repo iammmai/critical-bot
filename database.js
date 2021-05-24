@@ -44,4 +44,11 @@ module.exports = {
       .aggregate([{ $sample: { size: 1 } }])
       .toArray();
   },
+  getRandomOpenQuestion: async () => {
+    return await client
+      .db("criticalBot")
+      .collection("openQuestion")
+      .aggregate([{ $sample: { size: 1 } }])
+      .toArray();
+  },
 };
