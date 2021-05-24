@@ -1,4 +1,4 @@
-const { Telegraf } = require("telegraf");
+const { Telegraf, Markup } = require("telegraf");
 const dotenv = require("dotenv").config();
 const cron = require("node-cron");
 const db = require("./database");
@@ -9,7 +9,7 @@ const sendQuiz = ({ ctx, question, chatId }) => {
   const extra = {
     allows_multiple_answers: true,
     correct_option_id: question.correct_options_idx[0],
-    explanation: question.explanationTextFalse,
+    explanation: Markup.button.url("test", "https://www.google.com/"),
   };
   if (chatId) {
     return bot.telegram.sendQuiz(
@@ -24,8 +24,18 @@ const sendQuiz = ({ ctx, question, chatId }) => {
 
 bot.help((ctx) => {
   ctx.reply(
-    "/start to launch the bot\n/ask to receive a question\n/quit to stop the bot from sending questions"
+    "/start to launch the bot\n" +
+      "/ask to receive a mc question\n" +
+      "/quit to stop the bot from sending questions\n" +
+      "/feedback to send us feedback"
+    //todo open questions
   );
+});
+
+bot.command("feedback", (ctx) => {
+  console.log(ctx);
+  db.saveFeedback(ctx);
+  ctx.reply("Thanks for your feedback!🎉");
 });
 
 bot.command("quit", (ctx) => {

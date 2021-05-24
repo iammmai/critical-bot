@@ -7,6 +7,12 @@ const client = new MongoClient(process.env.MONGO_URL, {
 });
 
 module.exports = {
+  saveFeedback: (ctx) => {
+    client
+      .db("criticalBot")
+      .collection("feedbacks")
+      .insertOne({ message: ctx.message.text, chatID: ctx.chat.id });
+  },
   connect: async () => {
     try {
       // Connect the client to the server
@@ -14,8 +20,8 @@ module.exports = {
       // Establish and verify connection
       await client.db().command({ ping: 1 });
       console.log("Connected successfully to server");
-    } catch {
-      console.error("Error connecting to MongoDB");
+    } catch (e) {
+      console.error("Error connecting to MongoDB" + e);
     }
   },
   // TODO: maybe this needs to be an upsert

@@ -1,9 +1,13 @@
-{
-  "id": "4385789345",
+[{
   "title": "By how much has sea level risen since 1880?",
   "options": ["10cm", "22cm", "42cm"],
-  "correct_options_idx": ["1"],
-  "allowMultiple": false,
-  "explanationTextCorrect": "Some important land masses are about to go underwater because of the melting of ice caps. If we don't drastically change our ways, islands like Manhattan, or many of the world's favorite touristic islands, will disappear before our eyes.",
-  "explanationTextFalse": "Some othe explanation Text"
-}
+  "correct_options_idx": "1",
+  "explanationText": "Some important land masses are about to go underwater because of the melting of ice caps. If we don't drastically change our ways, islands like Manhattan, or many of the world's favorite touristic islands, will disappear before our eyes.",
+},
+{
+  "title": "By how much has sea level risen since 1880?",
+  "options": ["10cm", "22cm", "42cm"],
+  "correct_options_idx": "1",
+  "explanationText": "Some important land masses are about to go underwater because of the melting of ice caps. If we don't drastically change our ways, islands like Manhattan, or many of the world's favorite touristic islands, will disappear before our eyes.",
+}]
+
