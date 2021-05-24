@@ -2,24 +2,34 @@ const { Telegraf, Markup } = require("telegraf");
 const dotenv = require("dotenv").config();
 const cron = require("node-cron");
 const db = require("./database");
+const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const sendQuiz = ({ ctx, question, chatId }) => {
+bot.telegram.setWebhook(`${process.env.URL}/secret`);
+const app = express();
+
+app.use(bot.webhookCallback(`/secret`));
+app.listen(3000, () => {
+  console.log(`Example app listening on port 3000!`);
+});
+
+const sendQuiz = async ({ ctx, question, chatId }) => {
   const extra = {
     allows_multiple_answers: true,
     correct_option_id: question.correct_options_idx[0],
-    explanation: Markup.button.url("test", "https://www.google.com/"),
+    is_anonymous: false,
+    type: "quiz",
   };
   if (chatId) {
-    return bot.telegram.sendQuiz(
+    return await bot.telegram.sendQuiz(
       chatId,
       question.title,
       question.options,
       extra
     );
   }
-  return ctx.replyWithQuiz(question.title, question.options, extra);
+  return await ctx.replyWithQuiz(question.title, question.options, extra);
 };
 
 bot.help((ctx) => {
@@ -33,7 +43,6 @@ bot.help((ctx) => {
 });
 
 bot.command("feedback", (ctx) => {
-  console.log(ctx);
   db.saveFeedback(ctx);
   ctx.reply("Thanks for your feedback!🎉");
 });
@@ -61,7 +70,22 @@ bot.start((ctx) =>
 
 bot.command("ask", async (ctx) => {
   const [question, _] = await db.getRandomQuestion();
-  sendQuiz({ ctx, question });
+  const quiz = await sendQuiz({ ctx, question });
+  try {
+    // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
+    db.createQuiz(quiz.poll.id, question);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+bot.on("poll_answer", async (msg) => {
+  const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
+  quiz &&
+    bot.telegram.sendMessage(
+      msg.update.poll_answer.user.id,
+      quiz.explanationText
+    );
 });
 
 // connect to DB
@@ -75,7 +99,12 @@ db.connect()
       const chats = db.getAllChats();
       const [question, _] = await db.getRandomQuestion();
       await chats.forEach((chat) => {
-        sendQuiz({ chatId: chat.chatId, question });
+        const quiz = sendQuiz({ chatId: chat.chatId, question });
+        try {
+          db.createQuiz(quiz.poll.id, question);
+        } catch (error) {
+          console.log(error);
+        }
       });
     });
   });

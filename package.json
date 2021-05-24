@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/node": "^15.0.3",
     "dotenv": "^9.0.2",
+    "express": "^4.17.1",
     "mongodb": "^3.6.7",
     "node-cron": "^3.0.0",
     "prettier": "^2.3.0",

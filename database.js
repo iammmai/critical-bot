@@ -44,4 +44,14 @@ module.exports = {
       .aggregate([{ $sample: { size: 1 } }])
       .toArray();
   },
+  createQuiz: (pollId, question) =>
+    client.db("criticalBot").collection("polls").insertOne({
+      pollId,
+      explanationText: question.explanationText,
+      questionId: question._id,
+    }),
+  getQuizForPoll: (pollId) =>
+    client.db("criticalBot").collection("polls").findOne({
+      pollId,
+    }),
 };
