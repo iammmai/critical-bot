@@ -6,12 +6,12 @@ const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.telegram.setWebhook(`${process.env.URL}/secret`);
+bot.telegram.setWebhook(`${process.env.URL}/`);
 const app = express();
 
-app.use(bot.webhookCallback(`/secret`));
+app.use(bot.webhookCallback(`/${process.env.WEBHOOK_TOKEN}`));
 app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port 3000!`);
+  console.log(`Example app listening on port ${process.env.PORT}!`);
 });
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
