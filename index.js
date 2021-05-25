@@ -61,7 +61,7 @@ bot.start((ctx) =>
   ctx
     .reply(
       "Hi there! I am the critical bot. I will send you everyday *at 9 am one multiple choice question*. You can also type /question to receive an *open question* and /help for further information! I'm developed by students from different backgrounds as a university project. If you want to send us *feedback* just write /feedback [your text]",
-      { parse_mode: "MarkdownV2" }
+      { reply_markup: "markdown" }
     )
     .then((msg) => {
       // saves chatId to databse
