@@ -71,6 +71,7 @@ bot.start((ctx) =>
         userName: msg.chat.username,
         firstName: msg.chat.first_name,
         lastName: msg.chat.last_name,
+        alreadySendAsk: [],
       });
     })
 );
@@ -104,14 +105,19 @@ db.connect()
     //TODO: maybe the job should be scheduled based on the users timezone
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
-      const [question, _] = await db.getRandomQuestion();
+      const questions = db.getRandomQuestion();
       await chats.forEach(async (chat) => {
-        const quiz = await sendQuiz({ chatId: chat.chatId, question });
-        try {
-          db.createQuiz(quiz.poll.id, question);
-        } catch (error) {
-          console.log(error);
-        }
+        await questions.forEach(async (question) => {
+          if (!chat.alreadySendAsk.includes(question._id)) {
+            const quiz = await sendQuiz({ chatId: chat.chatId, question });
+            chat.alreadySendAsk.push(question._id);
+            try {
+              db.createQuiz(quiz.poll.id, question);
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        });
       });
     });
   });
