@@ -105,7 +105,7 @@ db.connect()
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
       const [question, _] = await db.getRandomQuestion();
-      await chats.forEach((chat) => {
+      await chats.forEach(async (chat) => {
         const quiz = await sendQuiz({ chatId: chat.chatId, question });
         try {
           db.createQuiz(quiz.poll.id, question);
