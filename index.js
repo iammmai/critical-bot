@@ -106,7 +106,7 @@ db.connect()
       const chats = db.getAllChats();
       const [question, _] = await db.getRandomQuestion();
       await chats.forEach((chat) => {
-        const quiz = sendQuiz({ chatId: chat.chatId, question });
+        const quiz = await sendQuiz({ chatId: chat.chatId, question });
         try {
           db.createQuiz(quiz.poll.id, question);
         } catch (error) {
