@@ -38,11 +38,7 @@ module.exports = {
   removeChat: (chatId) =>
     client.db("criticalBot").collection("chats").deleteOne({ chatId }),
   getRandomQuestion: async () => {
-    return await client
-      .db("criticalBot")
-      .collection("questions")
-      .aggregate([{ $sample: { size: 1 } }])
-      .toArray();
+    return await client.db("criticalBot").collection("questions").toArray();
   },
   createQuiz: (pollId, question) =>
     client.db("criticalBot").collection("polls").insertOne({
@@ -60,5 +56,11 @@ module.exports = {
       .collection("openQuestion")
       .aggregate([{ $sample: { size: 1 } }])
       .toArray();
+  },
+  getNextQuestion: (idx) => {
+    return client
+      .db("criticalBot")
+      .collection("questions")
+      .findOne({ idx: idx });
   },
 };

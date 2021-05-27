@@ -5,7 +5,7 @@ const db = require("./database");
 const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-
+let currentQuestionIdx = 0;
 bot.telegram.setWebhook(`${process.env.URL}/`);
 const app = express();
 
@@ -35,7 +35,6 @@ const sendQuiz = async ({ ctx, question, chatId }) => {
 bot.help((ctx) => {
   ctx.reply(
     "/start to launch the bot\n" +
-      "/ask to receive a mc question\n" +
       "/quit to stop the bot from sending questions\n" +
       "/feedback to send us feedback\n" +
       "/question to get an open question"
@@ -61,7 +60,7 @@ bot.start((ctx) =>
   bot.telegram
     .sendMessage(
       ctx.chat.id,
-      "Hi there\\! I am the critical bot\\. I will send you everyday *at 9 am one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
+      "Hi there\\! I am the critical bot\\. I will send you everyday *at 9 am UTC one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
       { parse_mode: "MarkdownV2" }
     )
     .then((msg) => {
@@ -75,7 +74,8 @@ bot.start((ctx) =>
     })
 );
 
-bot.command("ask", async (ctx) => {
+//todo comment
+/*bot.command("ask", async (ctx) => {
   const [question, _] = await db.getRandomQuestion();
   const quiz = await sendQuiz({ ctx, question });
   try {
@@ -84,7 +84,7 @@ bot.command("ask", async (ctx) => {
   } catch (error) {
     console.log(error);
   }
-});
+});*/
 
 bot.on("poll_answer", async (msg) => {
   const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
@@ -104,7 +104,12 @@ db.connect()
     //TODO: maybe the job should be scheduled based on the users timezone
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
-      const [question, _] = await db.getRandomQuestion();
+      const [question, _] = await db.getNextQuestion(currentQuestionIdx);
+      if (question.length === 0) {
+        currentQuestionIdx = 0;
+      } else {
+        currentQuestionIdx += 1;
+      }
       await chats.forEach(async (chat) => {
         const quiz = await sendQuiz({ chatId: chat.chatId, question });
         try {
