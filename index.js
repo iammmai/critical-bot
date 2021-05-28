@@ -64,7 +64,7 @@ bot.start((ctx) =>
     .sendMessage(
       ctx.chat.id,
       "Hi " +
-        ctx.chat.username +
+        ctx.message.from.username +
         "\\! I am the critical bot\\. I will send you everyday *at 9 am UTC one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
       { parse_mode: "MarkdownV2" }
     )
