@@ -24,7 +24,7 @@ module.exports = {
       console.error("Error connecting to MongoDB" + e);
     }
   },
-  // TODO: maybe this needs to be an upsert
+  // DONE: maybe this needs to be an upsert
   createChat: (newChat) =>
     client
       .db("criticalBot")

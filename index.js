@@ -81,7 +81,7 @@ bot.start((ctx) =>
     })
 );
 
-// todo comment
+// DONE comment
 // bot.command("ask", async (ctx) => {
 //   const [question, _] = await db.getRandomQuestion();
 //   const quiz = await sendQuiz({ ctx, question });
