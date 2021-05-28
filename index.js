@@ -84,17 +84,17 @@ bot.start((ctx) =>
     })
 );
 
-//todo comment
-// bot.command("ask", async (ctx) => {
-//   const [question, _] = await db.getRandomQuestion();
-//   const quiz = await sendQuiz({ ctx, question });
-//   try {
-//     // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
-//     db.createQuiz({ pollId: quiz.poll.id, question });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
+// todo comment
+bot.command("ask", async (ctx) => {
+  const [question, _] = await db.getRandomQuestion();
+  const quiz = await sendQuiz({ ctx, question });
+  try {
+    // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
+    db.createQuiz({ pollId: quiz.poll.id, question });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 bot.on("poll_answer", async (msg) => {
   const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
@@ -116,7 +116,7 @@ db.connect()
   .then(async () => {
     bot.launch();
     // schedule cron job to send out questions everyday at 9
-    cron.schedule("0 9 * * *", async () => {
+    cron.schedule("*/1 * * * *", async () => {
       const chats = db.getAllChats();
       let question = await db.getNextQuestion(currentQuestionIdx);
       if (!question) {
