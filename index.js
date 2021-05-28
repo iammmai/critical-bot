@@ -6,13 +6,16 @@ const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 let currentQuestionIdx = 0;
-bot.telegram.setWebhook(`${process.env.URL}/`);
+bot.telegram.setWebhook(`${process.env.URL}/${process.env.WEBHOOK_TOKEN}`, {
+  allowed_updates: ["poll_answer"],
+});
 const app = express();
 
 app.use(bot.webhookCallback(`/${process.env.WEBHOOK_TOKEN}`));
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`);
 });
+bot.telegram.getWebhookInfo().then((val) => console.log(val));
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
   const extra = {
@@ -116,7 +119,7 @@ db.connect()
   .then(async () => {
     bot.launch();
     // schedule cron job to send out questions everyday at 9
-    cron.schedule("*/1 * * * *", async () => {
+    cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
       let question = await db.getNextQuestion(currentQuestionIdx);
       if (!question) {
