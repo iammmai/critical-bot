@@ -11,7 +11,7 @@ const app = express();
 
 app.use(bot.webhookCallback(`/${process.env.WEBHOOK_TOKEN}`));
 app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}\!`);
+  console.log(`Example app listening on port ${process.env.PORT}!`);
 });
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
@@ -71,6 +71,7 @@ bot.start((ctx) =>
       "Hi there\\! I am the critical bot\\. I will send you everyday *at 9 am UTC one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
       { parse_mode: "MarkdownV2" }
     )
+    .catch((err) => console.log("Error sending message", err))
     .then((msg) => {
       // saves chatId to databse
       db.createChat({
@@ -84,16 +85,16 @@ bot.start((ctx) =>
 );
 
 //todo comment
-/*bot.command("ask", async (ctx) => {
-  const [question, _] = await db.getRandomQuestion();
-  const quiz = await sendQuiz({ ctx, question });
-  try {
-    // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
-    db.createQuiz(quiz.poll.id, question);
-  } catch (error) {
-    console.log(error);
-  }
-});*/
+// bot.command("ask", async (ctx) => {
+//   const [question, _] = await db.getRandomQuestion();
+//   const quiz = await sendQuiz({ ctx, question });
+//   try {
+//     // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
+//     db.createQuiz({ pollId: quiz.poll.id, question });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 bot.on("poll_answer", async (msg) => {
   const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
@@ -102,6 +103,11 @@ bot.on("poll_answer", async (msg) => {
       msg.update.poll_answer.user.id,
       quiz.explanationText
     );
+  // update poll with the answer
+  db.updateQuizAnswer({
+    pollId: msg.update.poll_answer.poll_id,
+    answer: msg.update.poll_answer.option_ids,
+  });
 });
 
 // connect to DB
@@ -110,25 +116,33 @@ db.connect()
   .then(async () => {
     bot.launch();
     // schedule cron job to send out questions everyday at 9
-    //TODO: maybe the job should be scheduled based on the users timezone
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
-      const [question, _] = await db.getNextQuestion(currentQuestionIdx);
-      if (question.length === 0) {
+      let question = await db.getNextQuestion(currentQuestionIdx);
+      if (!question) {
         currentQuestionIdx = 0;
+        question = await db.getNextQuestion(currentQuestionIdx);
       } else {
         currentQuestionIdx += 1;
       }
       await chats.forEach(async (chat) => {
-        const quiz = await sendQuiz({ chatId: chat.chatId, question });
+        const quiz = await sendQuiz({
+          chatId: chat.chatId,
+          question,
+        });
         try {
-          db.createQuiz(quiz.poll.id, question);
+          db.createQuiz({
+            pollId: quiz.poll.id,
+            question,
+            chatId: chat.chatId,
+          });
         } catch (error) {
           console.log(error);
         }
       });
     });
-  });
+  })
+  .catch((err) => console.log(err));
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));

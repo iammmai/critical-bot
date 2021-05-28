@@ -37,15 +37,25 @@ module.exports = {
   getAllChats: () => client.db("criticalBot").collection("chats").find({}),
   removeChat: (chatId) =>
     client.db("criticalBot").collection("chats").deleteOne({ chatId }),
-  getRandomQuestion: async () => {
-    return await client.db("criticalBot").collection("questions").toArray();
+  getRandomQuestion: () => {
+    return client
+      .db("criticalBot")
+      .collection("questions")
+      .aggregate([{ $sample: { size: 1 } }])
+      .toArray();
   },
-  createQuiz: (pollId, question) =>
+  createQuiz: ({ pollId, question, chatId }) =>
     client.db("criticalBot").collection("polls").insertOne({
       pollId,
       explanationText: question.explanationText,
       questionId: question._id,
+      chatId,
     }),
+  updateQuizAnswer: ({ pollId, answer }) =>
+    client
+      .db("criticalBot")
+      .collection("polls")
+      .updateOne({ pollId }, { $set: { answer } }),
   updateChatSendQuestion: (chatId, questionIdx) =>
     client
       .db("criticalBot")
