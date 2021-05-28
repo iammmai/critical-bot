@@ -37,19 +37,30 @@ module.exports = {
   getAllChats: () => client.db("criticalBot").collection("chats").find({}),
   removeChat: (chatId) =>
     client.db("criticalBot").collection("chats").deleteOne({ chatId }),
-  getRandomQuestion: async () => {
-    return await client
+  getRandomQuestion: () => {
+    return client
       .db("criticalBot")
       .collection("questions")
       .aggregate([{ $sample: { size: 1 } }])
       .toArray();
   },
-  createQuiz: (pollId, question) =>
+  createQuiz: ({ pollId, question, chatId }) =>
     client.db("criticalBot").collection("polls").insertOne({
       pollId,
       explanationText: question.explanationText,
       questionId: question._id,
+      chatId,
     }),
+  updateQuizAnswer: ({ pollId, answer }) =>
+    client
+      .db("criticalBot")
+      .collection("polls")
+      .updateOne({ pollId }, { $set: { answer } }),
+  updateChatSendQuestion: (chatId, questionIdx) =>
+    client
+      .db("criticalBot")
+      .collection("chats")
+      .updateOne({ chatId: chatId }, { $push: { sendQuestions: questionIdx } }),
   getQuizForPoll: (pollId) =>
     client.db("criticalBot").collection("polls").findOne({
       pollId,
@@ -60,5 +71,11 @@ module.exports = {
       .collection("openQuestion")
       .aggregate([{ $sample: { size: 1 } }])
       .toArray();
+  },
+  getNextQuestion: (idx) => {
+    return client
+      .db("criticalBot")
+      .collection("questions")
+      .findOne({ idx: idx });
   },
 };

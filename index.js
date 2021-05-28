@@ -5,22 +5,29 @@ const db = require("./database");
 const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-
+let currentQuestionIdx = 0;
 bot.telegram.setWebhook(`${process.env.URL}/`);
 const app = express();
 
 app.use(bot.webhookCallback(`/${process.env.WEBHOOK_TOKEN}`));
 app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}\!`);
+  console.log(`Example app listening on port ${process.env.PORT}!`);
 });
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
   const extra = {
-    allows_multiple_answers: true,
+    allows_multiple_answers: false,
     correct_option_id: question.correct_options_idx[0],
-    is_anonymous: false,
+    is_anonymous: true,
     type: "quiz",
   };
+  try {
+    db.updateChatSendQuestion(chatId ?? ctx.chat.id, question.idx);
+  } catch (exception) {
+    console.log(
+      "couldn't update sendQuestions for Chat" + chatId + ": " + exception
+    );
+  }
   if (chatId) {
     return await bot.telegram.sendQuiz(
       chatId,
@@ -29,13 +36,13 @@ const sendQuiz = async ({ ctx, question, chatId }) => {
       extra
     );
   }
+
   return await ctx.replyWithQuiz(question.title, question.options, extra);
 };
 
 bot.help((ctx) => {
   ctx.reply(
     "/start to launch the bot\n" +
-      "/ask to receive a mc question\n" +
       "/quit to stop the bot from sending questions\n" +
       "/feedback to send us feedback\n" +
       "/question to get an open question"
@@ -61,9 +68,10 @@ bot.start((ctx) =>
   bot.telegram
     .sendMessage(
       ctx.chat.id,
-      "Hi there\\! I am the critical bot\\. I will send you everyday *at 9 am one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
+      "Hi there\\! I am the critical bot\\. I will send you everyday *at 9 am UTC one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
       { parse_mode: "MarkdownV2" }
     )
+    .catch((err) => console.log("Error sending message", err))
     .then((msg) => {
       // saves chatId to databse
       db.createChat({
@@ -71,20 +79,22 @@ bot.start((ctx) =>
         userName: msg.chat.username,
         firstName: msg.chat.first_name,
         lastName: msg.chat.last_name,
+        sendQuestions: [],
       });
     })
 );
 
-bot.command("ask", async (ctx) => {
-  const [question, _] = await db.getRandomQuestion();
-  const quiz = await sendQuiz({ ctx, question });
-  try {
-    // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
-    db.createQuiz(quiz.poll.id, question);
-  } catch (error) {
-    console.log(error);
-  }
-});
+//todo comment
+// bot.command("ask", async (ctx) => {
+//   const [question, _] = await db.getRandomQuestion();
+//   const quiz = await sendQuiz({ ctx, question });
+//   try {
+//     // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
+//     db.createQuiz({ pollId: quiz.poll.id, question });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 bot.on("poll_answer", async (msg) => {
   const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
@@ -93,6 +103,11 @@ bot.on("poll_answer", async (msg) => {
       msg.update.poll_answer.user.id,
       quiz.explanationText
     );
+  // update poll with the answer
+  db.updateQuizAnswer({
+    pollId: msg.update.poll_answer.poll_id,
+    answer: msg.update.poll_answer.option_ids,
+  });
 });
 
 // connect to DB
@@ -101,20 +116,33 @@ db.connect()
   .then(async () => {
     bot.launch();
     // schedule cron job to send out questions everyday at 9
-    //TODO: maybe the job should be scheduled based on the users timezone
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
-      const [question, _] = await db.getRandomQuestion();
+      let question = await db.getNextQuestion(currentQuestionIdx);
+      if (!question) {
+        currentQuestionIdx = 0;
+        question = await db.getNextQuestion(currentQuestionIdx);
+      } else {
+        currentQuestionIdx += 1;
+      }
       await chats.forEach(async (chat) => {
-        const quiz = await sendQuiz({ chatId: chat.chatId, question });
+        const quiz = await sendQuiz({
+          chatId: chat.chatId,
+          question,
+        });
         try {
-          db.createQuiz(quiz.poll.id, question);
+          db.createQuiz({
+            pollId: quiz.poll.id,
+            question,
+            chatId: chat.chatId,
+          });
         } catch (error) {
           console.log(error);
         }
       });
     });
-  });
+  })
+  .catch((err) => console.log(err));
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
