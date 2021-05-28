@@ -5,9 +5,9 @@ const db = require("./database");
 const express = require("express");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-let currentQuestionIdx = 0;
-bot.telegram.setWebhook(`${process.env.URL}/${process.env.WEBHOOK_TOKEN}`, {
+bot.telegram.setWebhook(`${process.env.URL}/`, {
   allowed_updates: ["poll_answer"],
+  max_connections: 40,
 });
 const app = express();
 
@@ -15,22 +15,14 @@ app.use(bot.webhookCallback(`/${process.env.WEBHOOK_TOKEN}`));
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`);
 });
-bot.telegram.getWebhookInfo().then((val) => console.log(val));
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
   const extra = {
     allows_multiple_answers: false,
     correct_option_id: question.correct_options_idx[0],
-    is_anonymous: true,
+    is_anonymous: false,
     type: "quiz",
   };
-  try {
-    db.updateChatSendQuestion(chatId ?? ctx.chat.id, question.idx);
-  } catch (exception) {
-    console.log(
-      "couldn't update sendQuestions for Chat" + chatId + ": " + exception
-    );
-  }
   if (chatId) {
     return await bot.telegram.sendQuiz(
       chatId,
@@ -82,22 +74,22 @@ bot.start((ctx) =>
         userName: msg.chat.username,
         firstName: msg.chat.first_name,
         lastName: msg.chat.last_name,
-        sendQuestions: [],
+        lastQuestionIndex: -1,
       });
     })
 );
 
 // todo comment
-bot.command("ask", async (ctx) => {
-  const [question, _] = await db.getRandomQuestion();
-  const quiz = await sendQuiz({ ctx, question });
-  try {
-    // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
-    db.createQuiz({ pollId: quiz.poll.id, question });
-  } catch (error) {
-    console.log(error);
-  }
-});
+// bot.command("ask", async (ctx) => {
+//   const [question, _] = await db.getRandomQuestion();
+//   const quiz = await sendQuiz({ ctx, question });
+//   try {
+//     // saves a mapping between Telegram pollId and our questions, so that we can send the explanationText later
+//     db.createQuiz({ pollId: quiz.poll.id, question });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 bot.on("poll_answer", async (msg) => {
   const quiz = await db.getQuizForPoll(msg.update.poll_answer.poll_id);
@@ -121,24 +113,23 @@ db.connect()
     // schedule cron job to send out questions everyday at 9
     cron.schedule("0 9 * * *", async () => {
       const chats = db.getAllChats();
-      let question = await db.getNextQuestion(currentQuestionIdx);
-      if (!question) {
-        currentQuestionIdx = 0;
-        question = await db.getNextQuestion(currentQuestionIdx);
-      } else {
-        currentQuestionIdx += 1;
-      }
       await chats.forEach(async (chat) => {
-        const quiz = await sendQuiz({
-          chatId: chat.chatId,
-          question,
-        });
+        const currentQuestionIdx = chat.lastQuestionIndex;
+        let question = await db.getNextQuestion(currentQuestionIdx + 1);
+        if (!question) {
+          question = await db.getNextQuestion(0);
+        }
         try {
+          const quiz = await sendQuiz({
+            chatId: chat.chatId,
+            question,
+          });
           db.createQuiz({
             pollId: quiz.poll.id,
             question,
             chatId: chat.chatId,
           });
+          db.updateLastQuestionIndex(chat.chatId, question.idx);
         } catch (error) {
           console.log(error);
         }

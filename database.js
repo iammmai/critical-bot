@@ -56,11 +56,15 @@ module.exports = {
       .db("criticalBot")
       .collection("polls")
       .updateOne({ pollId }, { $set: { answer } }),
-  updateChatSendQuestion: (chatId, questionIdx) =>
+  updateLastQuestionIndex: (chatId, questionIdx) =>
     client
       .db("criticalBot")
       .collection("chats")
-      .updateOne({ chatId: chatId }, { $push: { sendQuestions: questionIdx } }),
+      .updateOne(
+        { chatId: chatId },
+        { $set: { lastQuestionIndex: questionIdx } }
+      )
+      .catch((err) => console.log(err)),
   getQuizForPoll: (pollId) =>
     client.db("criticalBot").collection("polls").findOne({
       pollId,
