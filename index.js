@@ -16,11 +16,18 @@ app.listen(process.env.PORT, () => {
 
 const sendQuiz = async ({ ctx, question, chatId }) => {
   const extra = {
-    allows_multiple_answers: true,
+    allows_multiple_answers: false,
     correct_option_id: question.correct_options_idx[0],
-    is_anonymous: false,
+    is_anonymous: true,
     type: "quiz",
   };
+  try {
+    db.updateChatSendQuestion(chatId ?? ctx.chat.id, question.idx);
+  } catch (exception) {
+    console.log(
+      "couldn't update sendQuestions for Chat" + chatId + ": " + exception
+    );
+  }
   if (chatId) {
     return await bot.telegram.sendQuiz(
       chatId,
@@ -29,6 +36,7 @@ const sendQuiz = async ({ ctx, question, chatId }) => {
       extra
     );
   }
+
   return await ctx.replyWithQuiz(question.title, question.options, extra);
 };
 
@@ -70,6 +78,7 @@ bot.start((ctx) =>
         userName: msg.chat.username,
         firstName: msg.chat.first_name,
         lastName: msg.chat.last_name,
+        sendQuestions: [],
       });
     })
 );

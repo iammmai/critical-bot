@@ -46,6 +46,11 @@ module.exports = {
       explanationText: question.explanationText,
       questionId: question._id,
     }),
+  updateChatSendQuestion: (chatId, questionIdx) =>
+    client
+      .db("criticalBot")
+      .collection("chats")
+      .updateOne({ chatId: chatId }, { $push: { sendQuestions: questionIdx } }),
   getQuizForPoll: (pollId) =>
     client.db("criticalBot").collection("polls").findOne({
       pollId,
