@@ -59,16 +59,19 @@ bot.command("quit", (ctx) => {
   ctx.reply("Sad to see you go!😢");
 });
 
+function escapeRegExp(string) {
+  return string.replace(/[.-*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 bot.start((ctx) =>
   bot.telegram
     .sendMessage(
       ctx.chat.id,
       "Hi " +
-        ctx.message.from.first_name +
+        escapeRegExp(ctx.message.from.first_name) +
         "\\! I am the critical bot\\. I will send you everyday *at 9 am UTC one multiple choice question*\\. You can also type /question to receive an *open question* and /help for further information\\! I'm developed by students from different backgrounds as a university project\\. If you want to send us *feedback* just write /feedback [your text]",
       { parse_mode: "MarkdownV2" }
     )
-    .catch((err) => console.log("Error sending message", err))
     .then((msg) => {
       // saves chatId to databse
       db.createChat({
@@ -76,7 +79,9 @@ bot.start((ctx) =>
         lastQuestionIndex: -1,
       });
     })
+    .catch((err) => console.log("Error sending message", err))
 );
+
 
 // DONE comment
 // bot.command("ask", async (ctx) => {
