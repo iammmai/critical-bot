@@ -73,9 +73,6 @@ bot.start((ctx) =>
       // saves chatId to databse
       db.createChat({
         chatId: msg.chat.id,
-        userName: msg.chat.username,
-        firstName: msg.chat.first_name,
-        lastName: msg.chat.last_name,
         lastQuestionIndex: -1,
       });
     })
